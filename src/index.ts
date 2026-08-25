@@ -46,9 +46,9 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-app.use((_req, res) => {
-  res.status(404).json({ error: 'Not found' });
-});
+// app.use((_req, res) => {
+//   res.status(404).json({ error: 'Not found' });
+// });
 
 const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   const { type } = (err ?? {}) as { type?: string };

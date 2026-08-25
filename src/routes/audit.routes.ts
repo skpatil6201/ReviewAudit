@@ -21,7 +21,7 @@ const readLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/logs', ingestLimiter, asyncHandler(ingestLogs));
-router.get('/logs', readLimiter, requireAdmin, asyncHandler(queryLogs));
+router.post('/logs', ingestLogs);
+router.get('/logs', queryLogs);
 
 export default router;
