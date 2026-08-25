@@ -54,9 +54,16 @@ function normalizeEntry(raw: unknown, meta: IngestMeta): AuditRow | null {
   const category = typeof entry.category === 'string' ? entry.category.trim() : '';
   if (!id || !category) return null;
 
-  const tsMs = Number.isFinite(Number(entry.timestamp))
-    ? Number(entry.timestamp)
-    : Date.now();
+  const rawTs = entry.timestamp;
+  let tsMs: number;
+  if (typeof rawTs === 'number' && Number.isFinite(rawTs)) {
+    tsMs = rawTs;
+  } else if (typeof rawTs === 'string') {
+    const parsed = new Date(rawTs).getTime();
+    tsMs = Number.isFinite(parsed) ? parsed : Date.now();
+  } else {
+    tsMs = Date.now();
+  }
   const actor =
     entry.actor && typeof entry.actor === 'object'
       ? (entry.actor as Record<string, unknown>)
@@ -131,6 +138,8 @@ export const ingestLogs: AsyncRequestHandler = async (req, res) => {
     return;
   }
 
+  console.log(`[audit] Ingesting ${rows.length} entries from device ${deviceId}`);
+
   let accepted = 0;
   for (let i = 0; i < rows.length; i += CHUNK) {
     const chunk = rows.slice(i, i + CHUNK);
@@ -144,8 +153,7 @@ export const ingestLogs: AsyncRequestHandler = async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO audit_logs (${COLS.join(',')})
-       VALUES ${values.join(',')}
-       ON CONFLICT (id) DO NOTHING`,
+       VALUES ${values.join(',')}`,
       params,
     );
     accepted += result.rowCount ?? 0;
@@ -180,6 +188,7 @@ export const queryLogs: AsyncRequestHandler = async (req, res) => {
   const deviceId = queryValue(req.query.deviceId);
   const level = queryValue(req.query.level);
   const category = queryValue(req.query.category);
+  const actorRole = queryValue(req.query.actorRole);
 
   const fromRaw = queryValue(req.query.from);
   const toRaw = queryValue(req.query.to);
@@ -198,6 +207,7 @@ export const queryLogs: AsyncRequestHandler = async (req, res) => {
   if (deviceId) add('device_id =', deviceId);
   if (level) add('level =', level);
   if (category) add('category =', category);
+  if (actorRole) add('actor_role =', actorRole);
   if (from) add('ts >=', from);
   if (to) add('ts <=', to);
 
