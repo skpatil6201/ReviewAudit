@@ -152,8 +152,9 @@ export const ingestLogs: AsyncRequestHandler = async (req, res) => {
     });
 
     const result = await pool.query(
-      `INSERT INTO audit_logs (${COLS.join(',')})
-       VALUES ${values.join(',')}`,
+      `INSERT INTO review_audit_logs (${COLS.join(',')})
+       VALUES ${values.join(',')}
+       ON CONFLICT (id) DO NOTHING`,
       params,
     );
     accepted += result.rowCount ?? 0;
@@ -223,7 +224,7 @@ export const queryLogs: AsyncRequestHandler = async (req, res) => {
   params.push(limit, offset);
 
   const result = await pool.query(
-    `SELECT * FROM audit_logs
+    `SELECT * FROM review_audit_logs
      ${where}
      ORDER BY ts DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,

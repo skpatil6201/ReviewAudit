@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS audit_logs (
+CREATE TABLE IF NOT EXISTS review_audit_logs (
   id           TEXT PRIMARY KEY,
   device_id    TEXT        NOT NULL,
   platform     TEXT,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   context      JSONB
 );
 
-CREATE INDEX IF NOT EXISTS audit_logs_user_ts_idx     ON audit_logs (user_id, ts DESC);
-CREATE INDEX IF NOT EXISTS audit_logs_category_ts_idx ON audit_logs (category, ts DESC);
-CREATE INDEX IF NOT EXISTS audit_logs_level_ts_idx    ON audit_logs (level, ts DESC);
-CREATE INDEX IF NOT EXISTS audit_logs_device_ts_idx   ON audit_logs (device_id, ts DESC);
+CREATE INDEX IF NOT EXISTS review_audit_logs_user_ts_idx     ON review_audit_logs (user_id, ts DESC);
+CREATE INDEX IF NOT EXISTS review_audit_logs_category_ts_idx ON review_audit_logs (category, ts DESC);
+CREATE INDEX IF NOT EXISTS review_audit_logs_level_ts_idx    ON review_audit_logs (level, ts DESC);
+CREATE INDEX IF NOT EXISTS review_audit_logs_device_ts_idx   ON review_audit_logs (device_id, ts DESC);
